@@ -36,6 +36,14 @@ import javax.swing.JPanel;
  * 	Allow the user to click on a picture of a dart board and react to the location at which they pressed, creating a more user 
  * friendly GUI. 
  *
+ *
+ *File is located in dannymaurer folder
+ *to push file back have to be in the same folder
+ *
+ *git status
+ *git add .
+ *git commit -m "description"
+ *git push
  */
 
 //========================================== The Model ============================================
@@ -184,6 +192,7 @@ class DartFrame extends JFrame{
 	
 	private String message;
 	private int total = 0;
+	private int potential = 0;
 	
 	public void ConfigureUI() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -210,7 +219,7 @@ class DartFrame extends JFrame{
 			pointButtons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
-					total = total + (int)(btn.getText());
+					potential = potential + Integer.parseInt(btn.getText());
 				}
 			});
 		}
