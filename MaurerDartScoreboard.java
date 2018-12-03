@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 
 /* Dart ScoreBoard
  * 
- * TEST IF THIS WORKS
  * 
  * Written by: Danny Maurer
  * 
@@ -188,7 +187,6 @@ class ScorePanel extends JPanel{
 class DartFrame extends JFrame{
 	JButton[] pointButtons = new JButton[20];
 	JButton[] enterButtons = new JButton[4];
-	
 	private ArrayList<Point> points;
 	private ScorePanel span;
 	
@@ -196,7 +194,7 @@ class DartFrame extends JFrame{
 	private int total = 0;
 	private int potential = 0;
 	
-	public void ConfigureUI() {
+	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,500,500);
 		setTitle("Dart Scoreboard v 0.1");
@@ -204,6 +202,7 @@ class DartFrame extends JFrame{
 		c.setLayout(new BorderLayout());
 		span = new ScorePanel(points);
 		c.add(span, BorderLayout.CENTER);
+		message = "Welcome to the Dart Scoreboard";
 		MessagePanel mpan = new MessagePanel(message);
 		c.add(mpan, BorderLayout.NORTH);
 		JPanel panSouth = new JPanel();
@@ -230,8 +229,8 @@ class DartFrame extends JFrame{
 		}
 		panSouth.add(panCenter, BorderLayout.CENTER);
 		
-		JPanel panRight = new JPanel();
-		panRight.setLayout(new GridLayout(1,4));
+		JPanel panEast = new JPanel();
+		panEast.setLayout(new GridLayout(4,1));
 		enterButtons[0] = new JButton("Miss");
 		enterButtons[1] = new JButton("Double");
 		enterButtons[2] = new JButton("Triple");
@@ -242,14 +241,45 @@ class DartFrame extends JFrame{
 				potential = 0;
 			}
 		});
+		enterButtons[1].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				potential = potential * 2;
+			}
+		});
+		enterButtons[2].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				potential = potential * 3;
+			}
+		});
+		enterButtons[3].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				total = potential;
+			}
+		});
 		
+		for(int i = 0; i < 4; i++) {
+			panEast.add(enterButtons[i]);
+		}
+		panSouth.add(panEast, BorderLayout.EAST);
+		c.add(panSouth, BorderLayout.SOUTH);
+	}
+	
+	
+	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Point> points) {
+		configureUI(pointButtons, enterButtons);
+		this.points = points;
 	}
 }
 
 public class MaurerDartScoreboard {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		JButton[] pointButtons = new JButton[20];
+		JButton[] enterButtons = new JButton[4];
+		ArrayList<Point> points = new ArrayList<Point>();
+		
+		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, points);
+		dfrm.setVisible(true);
 
 	}
 
