@@ -219,7 +219,7 @@ class DartFrame extends JFrame{
 			pointButtons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
-					potential = potential + Integer.parseInt(btn.getText());
+					potential = potential + Integer.parseInt(btn.getText()); // add the value of the button to the potential points
 				}
 			});
 		}
@@ -231,9 +231,16 @@ class DartFrame extends JFrame{
 		JPanel panRight = new JPanel();
 		panRight.setLayout(new GridLayout(1,4));
 		enterButtons[0] = new JButton("Miss");
-		enterButtons[0] = new JButton("Double");
-		enterButtons[0] = new JButton("Triple");
-		enterButtons[0] = new JButton("Enter"); // PICK UP AT THIS POINT, CREATE ACTION LISTENERS FOR EACH OF THE FOUR BUTTONS
+		enterButtons[1] = new JButton("Double");
+		enterButtons[2] = new JButton("Triple");
+		enterButtons[3] = new JButton("Enter"); // PICK UP AT THIS POINT, CREATE ACTION LISTENERS FOR EACH OF THE FOUR BUTTONS
+		
+		enterButtons[0].addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				potential = 0;
+			}
+		});
+		
 	}
 }
 
