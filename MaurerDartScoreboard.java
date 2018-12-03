@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -8,8 +9,11 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /* Dart ScoreBoard
  * 
@@ -81,14 +85,12 @@ class Point extends User{
 	public int getCurrent() {
 		return current;
 	}
-
 	public void setCurrent(int current) {
 		this.current = current;
 	}
 	public int getStart() {
 		return start;
 	}
-
 	public void setStart(int start) {
 		this.start = start;
 	}
@@ -106,9 +108,8 @@ class Point extends User{
 	}
 
 	// constructor
-	public Point(String name, int total, int start) {
+	public Point(String name, int start) {
 		super(name);
-		setCurrent(total);
 		setStart(start);
 	}
 	
@@ -174,15 +175,69 @@ class ScorePanel extends JPanel{
 		// g.setFont
 		for(Point p : points) {
 			xLoc = 100;
-			update = String.format("%d has %d!\n\n Only %d more to win!", p.getName(), p.getCurrent(), p.getRemainder());
+			update = String.format("%s has %d!\n\n Only %d more to win!", p.getName(), p.getCurrent(), p.getRemainder());
 			g.drawString(update, xLoc, 25);
 			xLoc = xLoc + 100;
 		}
 	}	
 }
 
+class FindInfo extends JDialog{
+	private String user;
+	private int game;
 
+	public String getUser() {
+		return user;
+	}
+	public void setUser(String user) {
+		this.user = user;
+	}
+	public int getGame() {
+		return game;
+	}
+	public void setGame(int game) {
+		this.game = game;
+	}
 	
+	public void configureUI() {
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setBounds(100,100,300,300);
+		Container c = getContentPane();
+		c.setLayout(new FlowLayout());
+		JLabel lblGame = new JLabel("What game would you like to play?");
+		JButton btn501 = new JButton("501");
+		btn501.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				game = 501;
+			}
+		});
+		JButton btn301 = new JButton("301");
+		btn501.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				game = 301;
+			}
+		});
+		c.add(lblGame);
+		c.add(btn501);
+		c.add(btn301);
+		JLabel lblUser = new JLabel("Enter the name of user 1: ");
+		JTextField txtUser = new JTextField(20);
+		JButton btnEnter = new JButton("Enter");
+		btnEnter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setUser(txtUser.getText());
+				setVisible(false);
+			}
+		});
+		c.add(lblUser);
+		c.add(txtUser);
+		c.add(btnEnter);
+	}
+	public FindInfo(JFrame owner, boolean modal) {
+		super(owner, modal);
+		configureUI();
+	}
+}	
 
 class DartFrame extends JFrame{
 	JButton[] pointButtons = new JButton[20];
@@ -191,10 +246,19 @@ class DartFrame extends JFrame{
 	private ScorePanel span;
 	
 	private String message;
+	private String user1;
+	private String user2;
+	private int game;
 	private int total = 0;
 	private int potential = 0;
 	
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
+		FindInfo fi = new FindInfo(this, true);
+		fi.setVisible(true);
+		fi.dispose();
+		game = fi.getGame();
+		user1 = fi.getUser();
+		points.add(new Point(user1, game));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,500,500);
 		setTitle("Dart Scoreboard v 0.1");
@@ -266,8 +330,8 @@ class DartFrame extends JFrame{
 	
 	
 	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Point> points) {
-		configureUI(pointButtons, enterButtons);
 		this.points = points;
+		configureUI(pointButtons, enterButtons);
 	}
 }
 
