@@ -254,13 +254,26 @@ class DartFrame extends JFrame{
 	JButton[] enterButtons = new JButton[4];
 	private ArrayList<Point> points;
 	private ScorePanel span;
+	private MessagePanel mpan;
 	
 	private String message;
+	private int enterCount;
+	private int count = 0;
+	private int arrayLoc;
+	private String cUser;
 	private String user1;
 	private String user2;
 	private int game;
 	private int total = 0;
 	private int potential = 0;
+	
+	/*if(count % 2 == 0) {
+		cUser = user1;
+		arrayLoc = 0;
+	} else {
+		cUser = user2;
+		arrayLoc = 1;
+	}*/
 	
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
 		FindInfo fi = new FindInfo(this, true);
@@ -269,8 +282,17 @@ class DartFrame extends JFrame{
 		game = fi.getGame();
 		user1 = fi.getUser1();
 		user2 = fi.getUser2();
+		
+		if(count % 2 == 0) {
+		cUser = user1;
+		arrayLoc = 0;
+		} else {
+		cUser = user2;
+		arrayLoc = 1;
+		}
+		
 		if(!user1.equals(null) && !user1.equals("")) {
-			points.add(new Point(user1, game, 0, game));
+			points.add(new Point(user1, game, 0, game)); // user, start, current, remainder
 		} 
 		if(!user2.equals(null) && !user2.equals("")) {
 			points.add(new Point(user2, game, 0, game));
@@ -282,8 +304,8 @@ class DartFrame extends JFrame{
 		c.setLayout(new BorderLayout());
 		span = new ScorePanel(points);
 		c.add(span, BorderLayout.CENTER);
-		message = "Welcome to the Dart Scoreboard";
-		MessagePanel mpan = new MessagePanel(message);
+		message = String.format("Welcome to the Dart Scoreboard! %s, enter your points for this turn", cUser);
+		mpan = new MessagePanel(message);
 		c.add(mpan, BorderLayout.NORTH);
 		JPanel panSouth = new JPanel();
 		panSouth.setLayout(new BorderLayout());
@@ -333,9 +355,17 @@ class DartFrame extends JFrame{
 		});
 		enterButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// ADD THE POTENTIAL VALUE TO THE TOTAL ON THE LIST OF POINTS
-			}
+				total = potential;	
+				points[arrayLoc].setCurrent(total);
+				span.repaint();
+				enterCount = enterCount + 1;
+				}
 		});
+		
+		if(enterCount > 2) {
+			enterCount = 0;
+			count = count + 1;
+		}
 		
 		for(int i = 0; i < 4; i++) {
 			panEast.add(enterButtons[i]);
