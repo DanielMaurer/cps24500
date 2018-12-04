@@ -77,22 +77,22 @@ class User{
 
 class Point extends User{
 	//declare variables
-	private int current; // current point value for each user
 	private int start; // starting value for each user, dependent on the game chosen
+	private int current;
 	private int remainder;
 
 	// get and set functions
-	public int getCurrent() {
-		return current;
-	}
-	public void setCurrent(int current) {
-		this.current = current;
-	}
 	public int getStart() {
 		return start;
 	}
 	public void setStart(int start) {
 		this.start = start;
+	}
+	public int getCurrent() {
+		return current;
+	}
+	public void setCurrent(int current) {
+		this.current = current;
 	}
 	public int getRemainder() {
 		return remainder;
@@ -100,22 +100,18 @@ class Point extends User{
 	public void setRemainder(int remainder) {
 		this.remainder = remainder;
 	}
-
-	//remaining value function 
-	public int remainingValue(int current, int start) {
-		remainder = start - current;
-		return remainder;
-	}
-
+	
 	// constructor
-	public Point(String name, int start) {
+	public Point(String name, int start, int current, int remainder) {
 		super(name);
 		setStart(start);
+		setCurrent(current);
+		setRemainder(remainder);
 	}
 	
 	// toString function
 	public String toString() {
-		return String.format("%d has %d", super.toString(), current); 
+		return String.format("%d has %d", super.toString(), start); 
 	}
 	
 	public boolean isWinner(int current) {
@@ -154,7 +150,7 @@ class MessagePanel extends JPanel{
 
 class ScorePanel extends JPanel{
 	private ArrayList<Point> points;
-	private int xLoc;
+	private int yLoc;
 	private String update;
 	//add a game variable if you want to include multiple game variants
 	
@@ -173,24 +169,31 @@ class ScorePanel extends JPanel{
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		// g.setFont
+		yLoc = 25;
 		for(Point p : points) {
-			xLoc = 100;
-			update = String.format("%s has %d!\n\n Only %d more to win!", p.getName(), p.getCurrent(), p.getRemainder());
-			g.drawString(update, xLoc, 25);
-			xLoc = xLoc + 100;
+			update = String.format("%s has %d! Only %d more to win!", p.getName(), p.getCurrent(), p.getRemainder());
+			g.drawString(update, 100, yLoc);
+			yLoc = yLoc + 50;
 		}
 	}	
 }
 
 class FindInfo extends JDialog{
-	private String user;
+	private String user1;
+	private String user2;
 	private int game;
 
-	public String getUser() {
-		return user;
+	public String getUser1() {
+		return user1;
 	}
-	public void setUser(String user) {
-		this.user = user;
+	public void setUser1(String user1) {
+		this.user1 = user1;
+	}
+	public String getUser2() {
+		return user2;
+	}
+	public void setUser2(String user2) {
+		this.user2 = user2;
 	}
 	public int getGame() {
 		return game;
@@ -220,17 +223,22 @@ class FindInfo extends JDialog{
 		c.add(lblGame);
 		c.add(btn501);
 		c.add(btn301);
-		JLabel lblUser = new JLabel("Enter the name of user 1: ");
-		JTextField txtUser = new JTextField(20);
+		JLabel lblUser1 = new JLabel("Enter the name of user 1: ");
+		JTextField txtUser1 = new JTextField(20);
+		JLabel lblUser2 = new JLabel("Enter the name of user 2: ");
+		JTextField txtUser2 = new JTextField(20);
 		JButton btnEnter = new JButton("Enter");
 		btnEnter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setUser(txtUser.getText());
+				setUser1(txtUser1.getText());
+				setUser2(txtUser2.getText());
 				setVisible(false);
 			}
 		});
-		c.add(lblUser);
-		c.add(txtUser);
+		c.add(lblUser1);
+		c.add(txtUser1);
+		c.add(lblUser2);
+		c.add(txtUser2);
 		c.add(btnEnter);
 	}
 	public FindInfo(JFrame owner, boolean modal) {
@@ -238,6 +246,8 @@ class FindInfo extends JDialog{
 		configureUI();
 	}
 }	
+
+//========================================== The Controller ============================================
 
 class DartFrame extends JFrame{
 	JButton[] pointButtons = new JButton[20];
@@ -257,8 +267,14 @@ class DartFrame extends JFrame{
 		fi.setVisible(true);
 		fi.dispose();
 		game = fi.getGame();
-		user1 = fi.getUser();
-		points.add(new Point(user1, game));
+		user1 = fi.getUser1();
+		user2 = fi.getUser2();
+		if(!user1.equals(null) && !user1.equals("")) {
+			points.add(new Point(user1, game, 0, game));
+		} 
+		if(!user2.equals(null) && !user2.equals("")) {
+			points.add(new Point(user2, game, 0, game));
+		}
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,500,500);
 		setTitle("Dart Scoreboard v 0.1");
@@ -277,7 +293,7 @@ class DartFrame extends JFrame{
 		panCenter.setLayout(new GridLayout(5,4));
 		// naming the point buttons to their respective point values
 		for(int i = 0; i < 20; i++) {
-			pointButtons[i] = new JButton("" + (char)(i + 1));
+			pointButtons[i] = new JButton("" + (i + 1));
 		}
 		// adding the value of the button to the total
 		for(int i = 0; i < 20; i++) {
@@ -317,7 +333,7 @@ class DartFrame extends JFrame{
 		});
 		enterButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				total = potential;
+				// ADD THE POTENTIAL VALUE TO THE TOTAL ON THE LIST OF POINTS
 			}
 		});
 		
@@ -330,7 +346,7 @@ class DartFrame extends JFrame{
 	
 	
 	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Point> points) {
-		this.points = points;
+		this.points = points; // ALWAYS DO THIS FIRST!!!
 		configureUI(pointButtons, enterButtons);
 	}
 }
