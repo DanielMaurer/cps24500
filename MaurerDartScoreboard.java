@@ -305,6 +305,7 @@ class DartFrame extends JFrame{
 	
 	private Player player1;
 	private Player player2;
+	private Player cPlayer;
 	
 	private String message;
 	private String name1;
@@ -326,8 +327,10 @@ class DartFrame extends JFrame{
 		
 		if(count % 2 == 0) {
 			cName = name1;
+			cPlayer = player1;
 		} else {
 			cName = name2;
+			cPlayer = player2;
 		}
 		
 		if(!name1.equals(null) && !name1.equals("")) {
@@ -397,8 +400,7 @@ class DartFrame extends JFrame{
 		});
 		enterButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				attempts.add(new Attempt(number, multiplier));	
-				// adjust the current value of the point for the specified user
+				cPlayer.throwDart(number, multiplier);	
 				span.repaint();
 				}
 		});
