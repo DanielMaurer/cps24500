@@ -52,74 +52,112 @@ import javax.swing.JTextField;
  */
 
 //========================================== The Model ============================================
-class User{
-	// declare variables
-	private String name;
+class Attempt{
+	// variables
+	private int number;
+	private int multiplier;
+	
+	// getters and setters
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number) {
+		this.number = number;
+	}
+	public int getMultiplier() {
+		return multiplier;
+	}
+	public void setMultiplier(int multiplier) {
+		this.multiplier = multiplier;
+	}
+	
+	// constructor
+	public Attempt(int number, int multiplier) {
+		setNumber(number);
+		setMultiplier(multiplier);
+	}
+}
 
-	// get and set functions
+class Player{
+	// declare variables
+	private ArrayList<Attempt> attempts;
+	private int currentScore;
+	private int game;
+	private int remainder;
+	private String name;
+	
+	// getters and setters
+	public ArrayList<Attempt> getAttempts() {
+		return attempts;
+	}
+	public void setAttempts(ArrayList<Attempt> attempts) {
+		this.attempts = attempts;
+	}
+	public int getCurrentScore() {
+		return currentScore;
+	}
+	public void setCurrentScore(int currentScore) {
+		this.currentScore = currentScore;
+	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	//constructor
-	public User(String name){
-		setName(name);
+	public int getGame() {
+		return game;
 	}
-	
-	//toString function
-	public String toString() {
-		return String.format("%d", name);
-	}
-}
-
-class Point extends User{
-	//declare variables
-	private int start; // starting value for each user, dependent on the game chosen
-	private int current;
-	private int remainder;
-
-	// get and set functions
-	public int getStart() {
-		return start;
-	}
-	public void setStart(int start) {
-		this.start = start;
-	}
-	public int getCurrent() {
-		return current;
-	}
-	public void setCurrent(int current) {
-		this.current = current;
-	}
-	public int getRemainder() {
-		return remainder;
-	}
-	public void setRemainder(int remainder) {
-		this.remainder = remainder;
+	public void setGame(int game) {
+		this.game = game;
 	}
 	
 	// constructor
-	public Point(String name, int start, int current, int remainder) {
-		super(name);
-		setStart(start);
-		setCurrent(current);
-		setRemainder(remainder);
+	public Player(ArrayList<Attempt> attempts, int currentScore, String name, int game) {
+		setAttempts(attempts);
+		setCurrentScore(currentScore);
+		setName(name);
+		setGame(game);
 	}
 	
-	// toString function
-	public String toString() {
-		return String.format("%d has %d", super.toString(), start); 
+	// various functions
+	public int getRemainder() {
+		return remainder = game - currentScore;
 	}
+	public void throwDart(int number, int multiplier) {
+		attempts.add(new Attempt(number, multiplier));
+		currentScore = 0;// SUM OF THE ATTEMPTS
+	}	
+}
+
+class Match{
+	private Player player1;
+	private Player player2;
+	private int game;
 	
-	public boolean isWinner(int current) {
-		if(current == 0) {
-			return true;
-		} else {
-			return false;
-		}
+	public Player getPlayer1() {
+		return player1;
+	}
+	public void setPlayer1(Player player1) {
+		this.player1 = player1;
+	}
+	public Player getPlayer2() {
+		return player2;
+	}
+	public void setPlayer2(Player player2) {
+		this.player2 = player2;
+	}
+	public int getGame() {
+		return game;
+	}
+	public void setGame(int game) {
+		this.game = game;
+	}
+
+	public Match(Player player1, Player player2, int game) {
+		setPlayer1(player1);
+		setPlayer2(player2);
+		setGame(game);
 	}
 }
 
@@ -143,26 +181,35 @@ class MessagePanel extends JPanel{
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.drawString(message, 15, 15); // ADJUST THIS TO FIT IN THE CENTER OF THE SCREEN
+		g.drawString("Welcome to the Dart Scoreboard!", 15, 15); // ADJUST THIS TO FIT IN THE CENTER OF THE SCREEN
+		g.drawString(message, 15, 30);
 	}
 	
 }
 
 class ScorePanel extends JPanel{
-	private ArrayList<Point> points;
+	private Player player1;
+	private Player player2;
 	private int yLoc;
 	private String update;
 	//add a game variable if you want to include multiple game variants
 	
-	public ArrayList<Point> getPoints() {
-		return points;
+	public Player getPlayer1() {
+		return player1;
 	}
-	public void setPoints(ArrayList<Point> points) {
-		this.points = points;
+	public void setPlayer1(Player player1) {
+		this.player1 = player1;
+	}
+	public Player getPlayer2() {
+		return player2;
+	}
+	public void setPlayer2(Player player2) {
+		this.player2 = player2;
 	}
 	
-	public ScorePanel(ArrayList<Point> points) {
-		this.points = points;
+	public ScorePanel(Player player1, Player player2) {
+		setPlayer1(player1);
+		setPlayer2(player2);
 	}
 	
 	@Override
@@ -170,30 +217,30 @@ class ScorePanel extends JPanel{
 		super.paintComponent(g);
 		// g.setFont
 		yLoc = 25;
-		for(Point p : points) {
-			update = String.format("%s has %d! Only %d more to win!", p.getName(), p.getCurrent(), p.getRemainder());
-			g.drawString(update, 100, yLoc);
-			yLoc = yLoc + 50;
-		}
+		update = String.format("%s has %d! Only %d more to win!", player1.getName(), player1.getCurrentScore(), player1.getRemainder());
+		g.drawString(update, 100, yLoc);
+		yLoc = yLoc + 50;
+		update = String.format("%s has %d! Only %d more to win!", player2.getName(), player2.getCurrentScore(), player2.getRemainder());
+		
 	}	
 }
 
 class FindInfo extends JDialog{
-	private String user1;
-	private String user2;
+	private String name1;
+	private String name2;
 	private int game;
 
-	public String getUser1() {
-		return user1;
+	public String getName1() {
+		return name1;
 	}
-	public void setUser1(String user1) {
-		this.user1 = user1;
+	public void setName1(String name1) {
+		this.name1 = name1;
 	}
-	public String getUser2() {
-		return user2;
+	public String getName2() {
+		return name2;
 	}
-	public void setUser2(String user2) {
-		this.user2 = user2;
+	public void setName2(String name2) {
+		this.name2 = name2;
 	}
 	public int getGame() {
 		return game;
@@ -223,22 +270,22 @@ class FindInfo extends JDialog{
 		c.add(lblGame);
 		c.add(btn501);
 		c.add(btn301);
-		JLabel lblUser1 = new JLabel("Enter the name of user 1: ");
-		JTextField txtUser1 = new JTextField(20);
-		JLabel lblUser2 = new JLabel("Enter the name of user 2: ");
-		JTextField txtUser2 = new JTextField(20);
+		JLabel lblPlayer1 = new JLabel("Enter the name of Player 1: ");
+		JTextField txtPlayer1 = new JTextField(20);
+		JLabel lblPlayer2 = new JLabel("Enter the name of Player 2: ");
+		JTextField txtPlayer2 = new JTextField(20);
 		JButton btnEnter = new JButton("Enter");
 		btnEnter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setUser1(txtUser1.getText());
-				setUser2(txtUser2.getText());
+				setName1(txtPlayer1.getText());
+				setName2(txtPlayer2.getText());
 				setVisible(false);
 			}
 		});
-		c.add(lblUser1);
-		c.add(txtUser1);
-		c.add(lblUser2);
-		c.add(txtUser2);
+		c.add(lblPlayer1);
+		c.add(txtPlayer1);
+		c.add(lblPlayer2);
+		c.add(txtPlayer2);
 		c.add(btnEnter);
 	}
 	public FindInfo(JFrame owner, boolean modal) {
@@ -252,59 +299,54 @@ class FindInfo extends JDialog{
 class DartFrame extends JFrame{
 	JButton[] pointButtons = new JButton[20];
 	JButton[] enterButtons = new JButton[4];
-	private ArrayList<Point> points;
+	private ArrayList<Attempt> attempts;
 	private ScorePanel span;
 	private MessagePanel mpan;
 	
-	private String message;
-	private int enterCount;
-	private int count = 0;
-	private int arrayLoc;
-	private String cUser;
-	private String user1;
-	private String user2;
-	private int game;
-	private int total = 0;
-	private int potential = 0;
+	private Player player1;
+	private Player player2;
 	
-	/*if(count % 2 == 0) {
-		cUser = user1;
-		arrayLoc = 0;
-	} else {
-		cUser = user2;
-		arrayLoc = 1;
-	}*/
+	private String message;
+	private String name1;
+	private String name2;
+	private String cName;
+	
+	private int game;
+	private int count;
+	private int number;
+	private int multiplier;
 	
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
 		FindInfo fi = new FindInfo(this, true);
 		fi.setVisible(true);
 		fi.dispose();
 		game = fi.getGame();
-		user1 = fi.getUser1();
-		user2 = fi.getUser2();
+		name1 = fi.getName1();
+		name2 = fi.getName2();
 		
 		if(count % 2 == 0) {
-		cUser = user1;
-		arrayLoc = 0;
+			cName = name1;
 		} else {
-		cUser = user2;
-		arrayLoc = 1;
+			cName = name2;
 		}
 		
-		if(!user1.equals(null) && !user1.equals("")) {
-			points.add(new Point(user1, game, 0, game)); // user, start, current, remainder
+		if(!name1.equals(null) && !name1.equals("")) {
+			player1 = new Player(attempts, 0, name1, game);
 		} 
-		if(!user2.equals(null) && !user2.equals("")) {
-			points.add(new Point(user2, game, 0, game));
-		}
+		if(!name2.equals(null) && !name2.equals("")) {
+			player2 = new Player(attempts, 0, name2, game);
+		} 
+		
+		// CREATE A NEW MATCH
+		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,500,500);
 		setTitle("Dart Scoreboard v 0.1");
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		span = new ScorePanel(points);
+		span = new ScorePanel(player1, player2);
 		c.add(span, BorderLayout.CENTER);
-		message = String.format("Welcome to the Dart Scoreboard! %s, enter your points for this turn", cUser);
+		message = String.format("%s, enter your points for this turn:", cName);
 		mpan = new MessagePanel(message);
 		c.add(mpan, BorderLayout.NORTH);
 		JPanel panSouth = new JPanel();
@@ -322,7 +364,7 @@ class DartFrame extends JFrame{
 			pointButtons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
-					potential = potential + Integer.parseInt(btn.getText()); // add the value of the button to the potential points
+					number = number + Integer.parseInt(btn.getText()); // add the value of the button to the potential points
 				}
 			});
 		}
@@ -340,31 +382,30 @@ class DartFrame extends JFrame{
 		
 		enterButtons[0].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				potential = 0;
+				number = 0;
 			}
 		});
 		enterButtons[1].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				potential = potential * 2;
+				multiplier = 2;
 			}
 		});
 		enterButtons[2].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				potential = potential * 3;
+				multiplier = 3;
 			}
 		});
 		enterButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				total = potential;	
-				points[arrayLoc].setCurrent(total);
+				attempts.add(new Attempt(number, multiplier));	
+				// adjust the current value of the point for the specified user
 				span.repaint();
-				enterCount = enterCount + 1;
 				}
 		});
 		
-		if(enterCount > 2) {
-			enterCount = 0;
-			count = count + 1;
+		// clear the attempts array so that the next series of attempts can be added
+		if(attempts.size() > 3) {
+			attempts.clear();
 		}
 		
 		for(int i = 0; i < 4; i++) {
@@ -375,8 +416,8 @@ class DartFrame extends JFrame{
 	}
 	
 	
-	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Point> points) {
-		this.points = points; // ALWAYS DO THIS FIRST!!!
+	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Attempt> attempts) {
+		this.attempts = attempts; // ALWAYS DO THIS FIRST!!!
 		configureUI(pointButtons, enterButtons);
 	}
 }
@@ -386,9 +427,9 @@ public class MaurerDartScoreboard {
 	public static void main(String[] args) {
 		JButton[] pointButtons = new JButton[20];
 		JButton[] enterButtons = new JButton[4];
-		ArrayList<Point> points = new ArrayList<Point>();
+		ArrayList<Attempt> attempts = new ArrayList<Attempt>();
 		
-		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, points);
+		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts);
 		dfrm.setVisible(true);
 
 	}
