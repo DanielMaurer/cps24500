@@ -56,6 +56,7 @@ class Attempt{
 	// variables
 	private int number;
 	private int multiplier;
+	private int score = 0;
 	
 	// getters and setters
 	public int getNumber() {
@@ -70,11 +71,21 @@ class Attempt{
 	public void setMultiplier(int multiplier) {
 		this.multiplier = multiplier;
 	}
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
+		this.score = score;
+	}
 	
 	// constructor
 	public Attempt(int number, int multiplier) {
 		setNumber(number);
 		setMultiplier(multiplier);
+	}
+	
+	public int calculateScore() {
+		return score = number * multiplier;
 	}
 }
 
@@ -85,6 +96,7 @@ class Player{
 	private int game;
 	private int remainder;
 	private String name;
+	
 	
 	// getters and setters
 	public ArrayList<Attempt> getAttempts() {
@@ -126,15 +138,48 @@ class Player{
 	}
 	public void throwDart(int number, int multiplier) {
 		attempts.add(new Attempt(number, multiplier));
-		currentScore = 0;// SUM OF THE ATTEMPTS
+		if(attempts.size() > 2) {
+			for(Attempt a : attempts) {
+				currentScore = currentScore + a.calculateScore();
+			}
+			attempts.clear();
+		}
 	}	
+	
 }
 
 class Match{
+	private String name1;
+	private String name2;
+	private int game;
+	ArrayList<Attempt> attempts;
 	private Player player1;
 	private Player player2;
-	private int game;
 	
+	public String getName1() {
+		return name1;
+	}
+	public void setName1(String name1) {
+		this.name1 = name1;
+	}
+	public String getName2() {
+		return name2;
+	}
+	public void setName2(String name2) {
+		this.name2 = name2;
+	}
+	public int getGame() {
+		return game;
+	}
+	public void setGame(int game) {
+		this.game = game;
+	}
+	public ArrayList<Attempt> getAttempts() {
+		return attempts;
+	}
+	public void setAttempts(ArrayList<Attempt> attempts) {
+		this.attempts = attempts;
+	}
 	public Player getPlayer1() {
 		return player1;
 	}
@@ -147,17 +192,55 @@ class Match{
 	public void setPlayer2(Player player2) {
 		this.player2 = player2;
 	}
+	public Match(String name1, String name2, int game, ArrayList<Attempt> attempts) {
+		setName1(name1);
+		setName2(name2);
+		setGame(game);
+		this.attempts = attempts;
+	}
+	
+	public void startMatch() {
+		// creates the players
+		player1 = new Player(attempts, 0, name1, game);
+		player2 = new Player(attempts, 0, name2, game);
+	}
+	public Player changePlayer(Player cPlayer) {
+		if(cPlayer.equals(player1)) {
+			return cPlayer = player2;
+		} else {
+			return cPlayer = player1;
+		}
+	}
+}
+
+class ScoreChecker{
+	private Player cPlayer;
+	private int game;
+	
+	public Player getcPlayer() {
+		return cPlayer;
+	}
+	public void setcPlayer(Player cPlayer) {
+		this.cPlayer = cPlayer;
+	}
 	public int getGame() {
 		return game;
 	}
 	public void setGame(int game) {
 		this.game = game;
 	}
-
-	public Match(Player player1, Player player2, int game) {
-		setPlayer1(player1);
-		setPlayer2(player2);
+	
+	public ScoreChecker(Player cPlayer, int game) {
+		this.cPlayer = cPlayer;
 		setGame(game);
+	}
+	
+	public boolean isWinner() {
+		if(cPlayer.getCurrentScore() == game) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
@@ -175,7 +258,7 @@ class MessagePanel extends JPanel{
 	
 	public MessagePanel(String message) {
 		setMessage(message);
-		setPreferredSize(new Dimension(100, 20));
+		setPreferredSize(new Dimension(100, 45));
 	}
 	
 	@Override
@@ -184,7 +267,6 @@ class MessagePanel extends JPanel{
 		g.drawString("Welcome to the Dart Scoreboard!", 15, 15); // ADJUST THIS TO FIT IN THE CENTER OF THE SCREEN
 		g.drawString(message, 15, 30);
 	}
-	
 }
 
 class ScorePanel extends JPanel{
@@ -192,6 +274,7 @@ class ScorePanel extends JPanel{
 	private Player player2;
 	private int yLoc;
 	private String update;
+	private boolean twoPlayer;
 	//add a game variable if you want to include multiple game variants
 	
 	public Player getPlayer1() {
@@ -207,21 +290,28 @@ class ScorePanel extends JPanel{
 		this.player2 = player2;
 	}
 	
-	public ScorePanel(Player player1, Player player2) {
+	public ScorePanel(Player player1, Player player2, boolean twoPlayer) {
 		setPlayer1(player1);
 		setPlayer2(player2);
+		this.twoPlayer = twoPlayer;
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		// g.setFont
-		yLoc = 25;
-		update = String.format("%s has %d! Only %d more to win!", player1.getName(), player1.getCurrentScore(), player1.getRemainder());
+		//g.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, observer) FOR DART BOARD
+		yLoc = 0;
+		if(player1.getName() != "") {
+			yLoc = yLoc + 50;
+			update = String.format("%s has %d! Only %d more to win!", player1.getName(), player1.getCurrentScore(), player1.getRemainder());
+		}
 		g.drawString(update, 100, yLoc);
-		yLoc = yLoc + 50;
-		update = String.format("%s has %d! Only %d more to win!", player2.getName(), player2.getCurrentScore(), player2.getRemainder());
-		
+		if(player2.getName() != "" && twoPlayer == true) {
+			yLoc = yLoc + 50;
+			update = String.format("%s has %d! Only %d more to win!", player2.getName(), player2.getCurrentScore(), player2.getRemainder());
+		}
+		g.drawString(update, 100, yLoc);
 	}	
 }
 
@@ -262,7 +352,7 @@ class FindInfo extends JDialog{
 			}
 		});
 		JButton btn301 = new JButton("301");
-		btn501.addActionListener(new ActionListener() {
+		btn301.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				game = 301;
 			}
@@ -302,6 +392,8 @@ class DartFrame extends JFrame{
 	private ArrayList<Attempt> attempts;
 	private ScorePanel span;
 	private MessagePanel mpan;
+	private ScoreChecker sc;
+	private Attempt a = new Attempt(0,0);
 	
 	private Player player1;
 	private Player player2;
@@ -315,7 +407,10 @@ class DartFrame extends JFrame{
 	private int game;
 	private int count;
 	private int number;
-	private int multiplier;
+	private int multiplier = 1;
+	
+	private boolean twoPlayer = true;
+	private boolean isWinner = false;
 	
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
 		FindInfo fi = new FindInfo(this, true);
@@ -325,31 +420,39 @@ class DartFrame extends JFrame{
 		name1 = fi.getName1();
 		name2 = fi.getName2();
 		
-		if(count % 2 == 0) {
-			cName = name1;
+		// Create a new match
+		Match match = new Match(name1, name2, game, attempts);
+		match.startMatch();
+		
+		//Get the values of the players
+		player1 = match.getPlayer1();
+		player2 = match.getPlayer2();
+		
+		// checks to see if there is only one player
+		if(player1.getName().equals("")) {
+			twoPlayer = false;
+			cPlayer = player2;
+		}else if(player2.getName().equals("")){
+			twoPlayer = false;
 			cPlayer = player1;
-		} else {
-			cName = name2;
+		}
+				
+		// sets the player whose turn it is
+		if(count % 2 == 0 && twoPlayer == true) {
+			cPlayer = player1;
+		} else if(count % 2 == 1 && twoPlayer == true) {
 			cPlayer = player2;
 		}
 		
-		if(!name1.equals(null) && !name1.equals("")) {
-			player1 = new Player(attempts, 0, name1, game);
-		} 
-		if(!name2.equals(null) && !name2.equals("")) {
-			player2 = new Player(attempts, 0, name2, game);
-		} 
-		
-		// CREATE A NEW MATCH
-		
+		sc = new ScoreChecker(cPlayer, game);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setBounds(100,100,500,500);
 		setTitle("Dart Scoreboard v 0.1");
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		span = new ScorePanel(player1, player2);
+		span = new ScorePanel(player1, player2, twoPlayer);
 		c.add(span, BorderLayout.CENTER);
-		message = String.format("%s, enter your points for this turn:", cName);
+		message = String.format("%s, enter your points for this turn:", cPlayer.getName());
 		mpan = new MessagePanel(message);
 		c.add(mpan, BorderLayout.NORTH);
 		JPanel panSouth = new JPanel();
@@ -366,6 +469,7 @@ class DartFrame extends JFrame{
 		for(int i = 0; i < 20; i++) {
 			pointButtons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					number = 0;
 					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
 					number = number + Integer.parseInt(btn.getText()); // add the value of the button to the potential points
 				}
@@ -402,13 +506,31 @@ class DartFrame extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				cPlayer.throwDart(number, multiplier);	
 				span.repaint();
+				isWinner = sc.isWinner();
+				count++; // see if this count works
+				if(isWinner == true) {
+					message = String.format("Hold the phone, we have a winner!!! Good job %s", cPlayer.getName());
+					mpan.setMessage(message);
+					mpan.repaint();
+					for(int i = 0; i < 20; i++) {
+						pointButtons[i].setEnabled(false);
+					}
+					for(int i = 0; i < 4; i++) {
+						enterButtons[i].setEnabled(false);
+					}
 				}
+				if(count > 2) {
+					count = 0;
+					cPlayer = match.changePlayer(cPlayer);
+					message = String.format("%s, enter your points for this turn:", cPlayer.getName());
+					mpan.setMessage(message);
+					mpan.repaint();
+					sc.setcPlayer(cPlayer);
+				}
+			}
 		});
 		
-		// clear the attempts array so that the next series of attempts can be added
-		if(attempts.size() > 3) {
-			attempts.clear();
-		}
+
 		
 		for(int i = 0; i < 4; i++) {
 			panEast.add(enterButtons[i]);
