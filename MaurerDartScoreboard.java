@@ -412,6 +412,13 @@ class DartFrame extends JFrame{
 	private boolean twoPlayer = true;
 	private boolean isWinner = false;
 	
+	public int getNumber() {
+		return number;
+	}
+	public void setNumber(int number) {
+		this.number = number;
+	}
+
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
 		FindInfo fi = new FindInfo(this, true);
 		fi.setVisible(true);
@@ -469,9 +476,8 @@ class DartFrame extends JFrame{
 		for(int i = 0; i < 20; i++) {
 			pointButtons[i].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					number = 0;
 					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
-					number = number + Integer.parseInt(btn.getText()); // add the value of the button to the potential points
+					setNumber(Integer.parseInt(btn.getText())); // add the value of the button to the potential points
 				}
 			});
 		}
@@ -489,7 +495,8 @@ class DartFrame extends JFrame{
 		
 		enterButtons[0].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				number = 0;
+				setNumber(0);
+				multiplier = 0;
 			}
 		});
 		enterButtons[1].addActionListener(new ActionListener() {
@@ -504,7 +511,9 @@ class DartFrame extends JFrame{
 		});
 		enterButtons[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cPlayer.throwDart(number, multiplier);	
+				cPlayer.throwDart(number, multiplier);
+				setNumber(0);
+				multiplier = 1;
 				span.repaint();
 				isWinner = sc.isWinner();
 				count++; // see if this count works
