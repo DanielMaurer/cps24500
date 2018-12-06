@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -12,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -93,6 +96,7 @@ class Player{
 	// declare variables
 	private ArrayList<Attempt> attempts;
 	private int currentScore;
+	private int prevScore;
 	private int game;
 	private int remainder;
 	private String name;
@@ -110,6 +114,12 @@ class Player{
 	}
 	public void setCurrentScore(int currentScore) {
 		this.currentScore = currentScore;
+	}
+	public int getPrevScore() {
+		return prevScore;
+	}
+	public void setPrevScore(int prevScore) {
+		this.prevScore = prevScore;
 	}
 	public String getName() {
 		return name;
@@ -248,6 +258,7 @@ class ScoreChecker{
 
 class MessagePanel extends JPanel{
 	private String message;
+	private String welcome = "Welcome to the Dart Scoreboard!";
 
 	public String getMessage() {
 		return message;
@@ -258,14 +269,19 @@ class MessagePanel extends JPanel{
 	
 	public MessagePanel(String message) {
 		setMessage(message);
-		setPreferredSize(new Dimension(100, 45));
+		setPreferredSize(new Dimension(100, 50));
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		g.drawString("Welcome to the Dart Scoreboard!", 15, 15); // ADJUST THIS TO FIT IN THE CENTER OF THE SCREEN
-		g.drawString(message, 15, 30);
+		//FontMetrics fm = g.getFontMetrics();
+		Font title = new Font("Times New Roman", Font.BOLD, 24);
+		g.setFont(title);
+		g.drawString(welcome, 65, 20); // ADJUST THIS TO FIT IN THE CENTER OF THE SCREEN
+		Font sub = new Font("Times New Roman",Font.PLAIN, 14);
+		g.setFont(sub);
+		g.drawString(message, 15, 40);
 	}
 }
 
@@ -341,7 +357,7 @@ class FindInfo extends JDialog{
 	
 	public void configureUI() {
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setBounds(100,100,300,300);
+		setBounds(100,100,300,220);
 		Container c = getContentPane();
 		c.setLayout(new FlowLayout());
 		JLabel lblGame = new JLabel("What game would you like to play?");
@@ -354,7 +370,7 @@ class FindInfo extends JDialog{
 		JButton btn301 = new JButton("301");
 		btn301.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				game = 301;
+				game = 301; 
 			}
 		});
 		c.add(lblGame);
@@ -408,9 +424,11 @@ class DartFrame extends JFrame{
 	private int count;
 	private int number;
 	private int multiplier = 1;
+	private int again;
 	
 	private boolean twoPlayer = true;
 	private boolean isWinner = false;
+	private boolean playAgain = true;
 	
 	public int getNumber() {
 		return number;
@@ -420,133 +438,163 @@ class DartFrame extends JFrame{
 	}
 
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
-		FindInfo fi = new FindInfo(this, true);
-		fi.setVisible(true);
-		fi.dispose();
-		game = fi.getGame();
-		name1 = fi.getName1();
-		name2 = fi.getName2();
-		
-		// Create a new match
-		Match match = new Match(name1, name2, game, attempts);
-		match.startMatch();
-		
-		//Get the values of the players
-		player1 = match.getPlayer1();
-		player2 = match.getPlayer2();
-		
-		// checks to see if there is only one player
-		if(player1.getName().equals("")) {
-			twoPlayer = false;
-			cPlayer = player2;
-		}else if(player2.getName().equals("")){
-			twoPlayer = false;
-			cPlayer = player1;
-		}
-				
-		// sets the player whose turn it is
-		if(count % 2 == 0 && twoPlayer == true) {
-			cPlayer = player1;
-		} else if(count % 2 == 1 && twoPlayer == true) {
-			cPlayer = player2;
-		}
-		
-		sc = new ScoreChecker(cPlayer, game);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setBounds(100,100,500,500);
-		setTitle("Dart Scoreboard v 0.1");
-		Container c = getContentPane();
-		c.setLayout(new BorderLayout());
-		span = new ScorePanel(player1, player2, twoPlayer);
-		c.add(span, BorderLayout.CENTER);
-		message = String.format("%s, enter your points for this turn:", cPlayer.getName());
-		mpan = new MessagePanel(message);
-		c.add(mpan, BorderLayout.NORTH);
-		JPanel panSouth = new JPanel();
-		panSouth.setLayout(new BorderLayout());
-		
-	// Formatting South Panel of the container
-		JPanel panCenter = new JPanel();
-		panCenter.setLayout(new GridLayout(5,4));
-		// naming the point buttons to their respective point values
-		for(int i = 0; i < 20; i++) {
-			pointButtons[i] = new JButton("" + (i + 1));
-		}
-		// adding the value of the button to the total
-		for(int i = 0; i < 20; i++) {
-			pointButtons[i].addActionListener(new ActionListener() {
+		if(playAgain = true){
+			FindInfo fi = new FindInfo(this, true);
+			fi.setVisible(true);
+			fi.dispose();
+			game = fi.getGame();
+			name1 = fi.getName1();
+			name2 = fi.getName2();
+			
+			// Create a new match
+			Match match = new Match(name1, name2, game, attempts);
+			match.startMatch();
+			
+			//Get the values of the players
+			player1 = match.getPlayer1();
+			player2 = match.getPlayer2();
+			
+			// checks to see if there is only one player
+			if(player1.getName().equals("")) {
+				twoPlayer = false;
+				cPlayer = player2;
+			}else if(player2.getName().equals("")){
+				twoPlayer = false;
+				cPlayer = player1;
+			}
+					
+			// sets the player whose turn it is
+			if(count % 2 == 0 && twoPlayer == true) {
+				cPlayer = player1;
+			} else if(count % 2 == 1 && twoPlayer == true) {
+				cPlayer = player2;
+			}
+			
+			sc = new ScoreChecker(cPlayer, game);
+			setDefaultCloseOperation(EXIT_ON_CLOSE);
+			setBounds(100,100,500,500);
+			setTitle("Dart Scoreboard v 0.1");
+			Container c = getContentPane();
+			c.setLayout(new BorderLayout());
+			span = new ScorePanel(player1, player2, twoPlayer);
+			c.add(span, BorderLayout.CENTER);
+			message = String.format("%s, enter your points for this turn:", cPlayer.getName());
+			mpan = new MessagePanel(message);
+			c.add(mpan, BorderLayout.NORTH);
+			JPanel panSouth = new JPanel();
+			panSouth.setLayout(new BorderLayout());
+			
+		// Formatting South Panel of the container
+			JPanel panCenter = new JPanel();
+			panCenter.setLayout(new GridLayout(5,4));
+			// naming the point buttons to their respective point values
+			for(int i = 0; i < 20; i++) {
+				pointButtons[i] = new JButton("" + (i + 1));
+			}
+			// adding the value of the button to the total
+			for(int i = 0; i < 20; i++) {
+				pointButtons[i].addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
+						setNumber(Integer.parseInt(btn.getText())); // add the value of the button to the potential points
+					}
+				});
+			}
+			for(int i = 0; i < 20; i++) {
+				panCenter.add(pointButtons[i]);
+			}
+			panSouth.add(panCenter, BorderLayout.CENTER);
+			
+			JPanel panEast = new JPanel();
+			panEast.setLayout(new BorderLayout());
+			enterButtons[0] = new JButton("Bullseye");
+			enterButtons[1] = new JButton("Miss");
+			enterButtons[2] = new JButton("Double");
+			enterButtons[3] = new JButton("Triple");
+			enterButtons[4] = new JButton("Enter"); 
+			
+			enterButtons[0].addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					JButton btn = (JButton)(e.getSource()); // typecasts the source of each button to a variable
-					setNumber(Integer.parseInt(btn.getText())); // add the value of the button to the potential points
+					setNumber(25);
 				}
 			});
-		}
-		for(int i = 0; i < 20; i++) {
-			panCenter.add(pointButtons[i]);
-		}
-		panSouth.add(panCenter, BorderLayout.CENTER);
-		
-		JPanel panEast = new JPanel();
-		panEast.setLayout(new GridLayout(4,1));
-		enterButtons[0] = new JButton("Miss");
-		enterButtons[1] = new JButton("Double");
-		enterButtons[2] = new JButton("Triple");
-		enterButtons[3] = new JButton("Enter"); // PICK UP AT THIS POINT, CREATE ACTION LISTENERS FOR EACH OF THE FOUR BUTTONS
-		
-		enterButtons[0].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setNumber(0);
-				multiplier = 0;
-			}
-		});
-		enterButtons[1].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				multiplier = 2;
-			}
-		});
-		enterButtons[2].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				multiplier = 3;
-			}
-		});
-		enterButtons[3].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cPlayer.throwDart(number, multiplier);
-				setNumber(0);
-				multiplier = 1;
-				span.repaint();
-				isWinner = sc.isWinner();
-				count++; // see if this count works
-				if(isWinner == true) {
-					message = String.format("Hold the phone, we have a winner!!! Good job %s", cPlayer.getName());
-					mpan.setMessage(message);
-					mpan.repaint();
-					for(int i = 0; i < 20; i++) {
-						pointButtons[i].setEnabled(false);
+			enterButtons[1].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setNumber(0);
+					multiplier = 0;
+				}
+			});
+			enterButtons[2].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					multiplier = 2;
+				}
+			});
+			enterButtons[3].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					multiplier = 3;
+				}
+			});
+			enterButtons[4].addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					cPlayer.setPrevScore(cPlayer.getCurrentScore());
+					cPlayer.throwDart(number, multiplier);
+					setNumber(0);
+					multiplier = 1;
+					span.repaint();
+					isWinner = sc.isWinner();
+					count++; // see if this count works
+					if(isWinner == true) {
+						message = String.format("Hold the phone, we have a winner!!! Good job %s", cPlayer.getName());
+						mpan.setMessage(message);
+						mpan.repaint();
+						for(int i = 0; i < 20; i++) {
+							pointButtons[i].setEnabled(false);
+						}
+						for(int i = 0; i < 4; i++) {
+							enterButtons[i].setEnabled(false);
+						}
+						again = JOptionPane.showConfirmDialog(null, "Do you want to play again?", null, 1);
+						
+						if(again == 0) { // CHANGE THIS FOR THE FINAL GAME
+							playAgain = true;
+							DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts);
+							dfrm.setVisible(true);
+						} else {
+							playAgain = false;
+						}
+						
 					}
-					for(int i = 0; i < 4; i++) {
-						enterButtons[i].setEnabled(false);
+					if(cPlayer.getCurrentScore() > game) {
+						message = String.format("You thought you were good %s, but you went over", cPlayer.getName());
+						mpan.setMessage(message);
+						mpan.repaint();
+						cPlayer.setCurrentScore(cPlayer.getPrevScore());
+					}
+					if(count > 2) {
+						count = 0;
+						if(twoPlayer == true) {
+							cPlayer = match.changePlayer(cPlayer);
+							message = String.format("%s, enter your points for this turn:", cPlayer.getName());
+							mpan.setMessage(message);
+							mpan.repaint();
+							sc.setcPlayer(cPlayer);
+						}
 					}
 				}
-				if(count > 2) {
-					count = 0;
-					cPlayer = match.changePlayer(cPlayer);
-					message = String.format("%s, enter your points for this turn:", cPlayer.getName());
-					mpan.setMessage(message);
-					mpan.repaint();
-					sc.setcPlayer(cPlayer);
-				}
+			});
+			
+			JPanel panEastCenter = new JPanel();
+			panEastCenter.setLayout(new GridLayout(2,2));
+			
+			for(int i = 0; i < 4; i++) {
+				panEastCenter.add(enterButtons[i], BorderLayout.CENTER);
 			}
-		});
-		
-
-		
-		for(int i = 0; i < 4; i++) {
-			panEast.add(enterButtons[i]);
+			panEast.add(panEastCenter, BorderLayout.CENTER);
+			panEast.add(enterButtons[4], BorderLayout.SOUTH);
+			panSouth.add(panEast, BorderLayout.EAST);
+			c.add(panSouth, BorderLayout.SOUTH);
 		}
-		panSouth.add(panEast, BorderLayout.EAST);
-		c.add(panSouth, BorderLayout.SOUTH);
-	}
+	} 
 	
 	
 	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Attempt> attempts) {
@@ -559,7 +607,7 @@ public class MaurerDartScoreboard {
 
 	public static void main(String[] args) {
 		JButton[] pointButtons = new JButton[20];
-		JButton[] enterButtons = new JButton[4];
+		JButton[] enterButtons = new JButton[5];
 		ArrayList<Attempt> attempts = new ArrayList<Attempt>();
 		
 		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts);
