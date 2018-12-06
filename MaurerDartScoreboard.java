@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -23,30 +24,24 @@ import javax.swing.JTextField;
  * 
  * Written by: Danny Maurer
  * 
- * The purpose of this project is to create an application that keeps track of the point totals for three dart game variants.
+ * The purpose of this project is to create an application that keeps track of the point totals for two dart game variants.
  * If the user selects the game 301 or 501, they will input the target that they hit, along with any multiplier, and the app
  * will keep track of the total. The winner will receive a notification when they reach 0 and win.
  * 
- * If the user selects the game cricket, they will input values in a similar fashion and the view will display which targets are 
- * hit.
  * 
- * The model classes are the User, point and game classes. 
+ * The model classes are Attempt, Player, Match, and ScoreChecker. 
  * 
- * The view classes are ScorePanel, 
+ * The view classes are MessagePanel, ScorePanel, and FindInfo 
  * 
- * The controller class is
+ * The controller class is DartFrame.
  * 
  * Serialization:
  * 
  * Future Improvements: 
- * Add more game variants
- * 
- * 	Allow the user to click on a picture of a dart board and react to the location at which they pressed, creating a more user 
+ * 	-Add more game variants
+ * 	-Allow the user to click on a picture of a dart board and react to the location at which they pressed, creating a more user 
  * friendly GUI. 
  *
- *
- *File is located in dannymaurer folder
- *to push file back have to be in the same folder
  *
  *git status
  *git add .
@@ -288,6 +283,8 @@ class MessagePanel extends JPanel{
 class ScorePanel extends JPanel{
 	private Player player1;
 	private Player player2;
+	private Player cPlayer;
+	private int xLoc;
 	private int yLoc;
 	private String update;
 	private boolean twoPlayer;
@@ -305,29 +302,84 @@ class ScorePanel extends JPanel{
 	public void setPlayer2(Player player2) {
 		this.player2 = player2;
 	}
+	public Player getcPlayer() {
+		return cPlayer;
+	}
+	public void setcPlayer(Player cPlayer) {
+		this.cPlayer = cPlayer;
+	}
 	
-	public ScorePanel(Player player1, Player player2, boolean twoPlayer) {
+	public ScorePanel(Player player1, Player player2, Player cPlayer, boolean twoPlayer) {
 		setPlayer1(player1);
 		setPlayer2(player2);
+		setcPlayer(cPlayer);
 		this.twoPlayer = twoPlayer;
 	}
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// g.setFont
-		//g.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, observer) FOR DART BOARD
-		yLoc = 0;
+		Font name = new Font("Times New Roman", Font.BOLD, 26);
+		Font score = new Font("Times New Roman", Font.PLAIN, 16);
+		
+		// Adjusting for Player 1
 		if(player1.getName() != "") {
-			yLoc = yLoc + 50;
-			update = String.format("%s has %d! Only %d more to win!", player1.getName(), player1.getCurrentScore(), player1.getRemainder());
+			xLoc = 100;
+			yLoc = 50;
+			update = String.format("%s", player1.getName());
+		
+			g.setFont(name);
+			g.drawString(update, xLoc, yLoc);
+			FontMetrics fm = g.getFontMetrics();
+			int xrect = xLoc-10;
+			int yrect = yLoc - fm.getAscent();
+			int width = fm.stringWidth(update)+20;
+			int height = fm.getAscent() + fm.getDescent();
+			if(cPlayer.getName().equals(player1.getName())){
+				g.setColor(Color.RED);
+				g.drawRect(xrect, yrect, width, height);
+				g.setColor(Color.BLACK);
+			}	
+			xLoc = xLoc - 20;
+			yLoc = yLoc + 30;
+			update = String.format("Current: %d", player1.getCurrentScore());
+			g.setFont(score);
+			g.drawString(update, xLoc, yLoc);
+			
+			yLoc = yLoc + 30;
+			update = String.format("Remainder: %d", player1.getRemainder());
+			g.drawString(update, xLoc, yLoc);
 		}
-		g.drawString(update, 100, yLoc);
-		if(player2.getName() != "" && twoPlayer == true) {
-			yLoc = yLoc + 50;
-			update = String.format("%s has %d! Only %d more to win!", player2.getName(), player2.getCurrentScore(), player2.getRemainder());
+		
+		// for Player 2
+		if(twoPlayer == true) {
+			xLoc = 300;
+			yLoc = 50;
+			update = String.format("%s", player2.getName());
+			
+			g.setFont(name);
+			g.drawString(update, xLoc, yLoc);
+			FontMetrics fm = g.getFontMetrics();
+			int xrect = xLoc-10;
+			int yrect = yLoc - fm.getAscent();
+			int width = fm.stringWidth(update)+20;
+			int height = fm.getAscent() + fm.getDescent();
+			if(cPlayer.getName().equals(player2.getName())){
+				g.setColor(Color.RED);
+				g.drawRect(xrect, yrect, width, height);
+				g.setColor(Color.BLACK);
+			}	
+			xLoc = xLoc - 20;
+			yLoc = yLoc + 30;
+			update = String.format("Current: %d", player2.getCurrentScore());
+			g.setFont(score);
+			g.drawString(update, xLoc, yLoc);
+			
+			yLoc = yLoc + 30;
+			update = String.format("Remainder: %d", player2.getRemainder());
+			g.drawString(update, xLoc, yLoc);
+			
 		}
-		g.drawString(update, 100, yLoc);
 	}	
 }
 
@@ -418,7 +470,7 @@ class DartFrame extends JFrame{
 	private String message;
 	private String name1;
 	private String name2;
-	private String cName;
+	private String sAgain;
 	
 	private int game;
 	private int count;
@@ -476,7 +528,7 @@ class DartFrame extends JFrame{
 			setTitle("Dart Scoreboard v 0.1");
 			Container c = getContentPane();
 			c.setLayout(new BorderLayout());
-			span = new ScorePanel(player1, player2, twoPlayer);
+			span = new ScorePanel(player1, player2, cPlayer, twoPlayer);
 			c.add(span, BorderLayout.CENTER);
 			message = String.format("%s, enter your points for this turn:", cPlayer.getName());
 			mpan = new MessagePanel(message);
@@ -553,7 +605,8 @@ class DartFrame extends JFrame{
 						for(int i = 0; i < 4; i++) {
 							enterButtons[i].setEnabled(false);
 						}
-						again = JOptionPane.showConfirmDialog(null, "Do you want to play again?", null, 1);
+						sAgain = String.format("%s won that one... Rematch?", cPlayer.getName());
+						again = JOptionPane.showConfirmDialog(null, sAgain, null, 1);
 						
 						if(again == 0) { // CHANGE THIS FOR THE FINAL GAME
 							playAgain = true;
@@ -578,6 +631,7 @@ class DartFrame extends JFrame{
 							mpan.setMessage(message);
 							mpan.repaint();
 							sc.setcPlayer(cPlayer);
+							span.setcPlayer(cPlayer);
 						}
 					}
 				}
