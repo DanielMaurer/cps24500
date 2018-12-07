@@ -28,6 +28,12 @@ import javax.swing.JTextField;
  * If the user selects the game 301 or 501, they will input the target that they hit, along with any multiplier, and the app
  * will keep track of the total. The winner will receive a notification when they reach 0 and win.
  * 
+ * To use this app, the player or players will select the game that they want to play as well as their names followed by pressing 
+ * enter. To input your attempts, you either press the number that you hit or miss, followed by the potential multiplier. If you 
+ * didn't hit a multiplier, then you just select the number. Once you have your potential number and multiplier, you press enter. 
+ * THE SCORE PANEL WILL NOT UPDATE UNTIL YOU INSERT ALL 3 OF YOUR ATTEMPTS!!! If there are two players, then after there are three
+ * attempts the score panel will update showing whose turn it is. 
+ * 
  * 
  * The model classes are Attempt, Player, Match, and ScoreChecker. 
  * 
@@ -490,16 +496,21 @@ class DartFrame extends JFrame{
 	}
 
 	public void configureUI(JButton[] pointButtons, JButton[] enterButtons) {
-		if(playAgain = true){
+		if(playAgain = true){ // for multiple games
 			FindInfo fi = new FindInfo(this, true);
 			fi.setVisible(true);
 			fi.dispose();
-			game = fi.getGame();
-			name1 = fi.getName1();
-			name2 = fi.getName2();
+			game = fi.getGame(); // get the value of the game selected
+			name1 = fi.getName1(); // as well as the players name
+			name2 = fi.getName2(); // and potential second players name
+			
+			if(name1.isEmpty() && !name2.isEmpty()) {
+				name1 = name2;
+				twoPlayer = false;
+			}
 			
 			// Create a new match
-			Match match = new Match(name1, name2, game, attempts);
+			Match match = new Match(name1, name2, game, attempts); // COMMENT FROM HERE
 			match.startMatch();
 			
 			//Get the values of the players
@@ -507,10 +518,9 @@ class DartFrame extends JFrame{
 			player2 = match.getPlayer2();
 			
 			// checks to see if there is only one player
-			if(player1.getName().equals("")) {
-				twoPlayer = false;
-				cPlayer = player2;
-			}else if(player2.getName().equals("")){
+			if(name1.equals(name2)) {
+				cPlayer = player1;
+			} else if(player2.getName().equals("")){
 				twoPlayer = false;
 				cPlayer = player1;
 			}
@@ -651,21 +661,21 @@ class DartFrame extends JFrame{
 	} 
 	
 	
-	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Attempt> attempts) {
+	public DartFrame (JButton[] pointButtons, JButton[] enterButtons, ArrayList<Attempt> attempts) { // dartframe constructor 
 		this.attempts = attempts; // ALWAYS DO THIS FIRST!!!
-		configureUI(pointButtons, enterButtons);
+		configureUI(pointButtons, enterButtons); // run this function 
 	}
 }
 
 public class MaurerDartScoreboard {
 
 	public static void main(String[] args) {
-		JButton[] pointButtons = new JButton[20];
-		JButton[] enterButtons = new JButton[5];
-		ArrayList<Attempt> attempts = new ArrayList<Attempt>();
+		JButton[] pointButtons = new JButton[20]; // Create an array of buttons for the points
+		JButton[] enterButtons = new JButton[5]; // create an array of buttons for bullseye, multipliers and enter
+		ArrayList<Attempt> attempts = new ArrayList<Attempt>(); // create an arraylist of attempts for each player
 		
-		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts);
-		dfrm.setVisible(true);
+		DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts); // create a dartframe passing in the buttons and attempts
+		dfrm.setVisible(true); // show the frame on the screen
 
 	}
 
