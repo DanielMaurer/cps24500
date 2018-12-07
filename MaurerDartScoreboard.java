@@ -88,7 +88,7 @@ class Attempt{
 		setMultiplier(multiplier);
 	}
 	
-	public int calculateScore() {
+	public int calculateScore() { // calculates score by multiplying the number and the multiplier together
 		return score = number * multiplier;
 	}
 }
@@ -144,16 +144,16 @@ class Player{
 	}
 	
 	// various functions
-	public int getRemainder() {
+	public int getRemainder() { // determine how many points remain
 		return remainder = game - currentScore;
 	}
-	public void throwDart(int number, int multiplier) {
-		attempts.add(new Attempt(number, multiplier));
-		if(attempts.size() > 2) {
+	public void throwDart(int number, int multiplier) { // throws the dart
+		attempts.add(new Attempt(number, multiplier)); // adds the point value to the attempt array
+		if(attempts.size() > 2) { // when the user enters in 3 attempts
 			for(Attempt a : attempts) {
-				currentScore = currentScore + a.calculateScore();
+				currentScore = currentScore + a.calculateScore(); // the score is calculated
 			}
-			attempts.clear();
+			attempts.clear(); // and the attempts array is clear and ready for the next turn
 		}
 	}	
 	
@@ -215,7 +215,7 @@ class Match{
 		player1 = new Player(attempts, 0, name1, game);
 		player2 = new Player(attempts, 0, name2, game);
 	}
-	public Player changePlayer(Player cPlayer) {
+	public Player changePlayer(Player cPlayer) { // changes the player in the match
 		if(cPlayer.equals(player1)) {
 			return cPlayer = player2;
 		} else {
@@ -246,7 +246,7 @@ class ScoreChecker{
 		setGame(game);
 	}
 	
-	public boolean isWinner() {
+	public boolean isWinner() { // checks to see if the current player won the match
 		if(cPlayer.getCurrentScore() == game) {
 			return true;
 		} else {
@@ -274,7 +274,7 @@ class MessagePanel extends JPanel{
 	}
 	
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) { // draws the title and message
 		super.paintComponent(g);
 		//FontMetrics fm = g.getFontMetrics();
 		Font title = new Font("Times New Roman", Font.BOLD, 24);
@@ -323,7 +323,7 @@ class ScorePanel extends JPanel{
 	}
 	
 	@Override
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) { // draws the score panel with a red box around the current user
 		super.paintComponent(g);
 		Font name = new Font("Times New Roman", Font.BOLD, 26);
 		Font score = new Font("Times New Roman", Font.PLAIN, 16);
@@ -389,7 +389,7 @@ class ScorePanel extends JPanel{
 	}	
 }
 
-class FindInfo extends JDialog{
+class FindInfo extends JDialog{ // window to get the players names and the game that will be played
 	private String name1;
 	private String name2;
 	private int game;
@@ -510,8 +510,8 @@ class DartFrame extends JFrame{
 			}
 			
 			// Create a new match
-			Match match = new Match(name1, name2, game, attempts); // COMMENT FROM HERE
-			match.startMatch();
+			Match match = new Match(name1, name2, game, attempts); // creates a new match
+			match.startMatch(); // starts the match
 			
 			//Get the values of the players
 			player1 = match.getPlayer1();
@@ -538,10 +538,10 @@ class DartFrame extends JFrame{
 			setTitle("Dart Scoreboard v 0.1");
 			Container c = getContentPane();
 			c.setLayout(new BorderLayout());
-			span = new ScorePanel(player1, player2, cPlayer, twoPlayer);
-			c.add(span, BorderLayout.CENTER);
+			span = new ScorePanel(player1, player2, cPlayer, twoPlayer); // creates the score panel
+			c.add(span, BorderLayout.CENTER); // adds it to the frame
 			message = String.format("%s, enter your points for this turn:", cPlayer.getName());
-			mpan = new MessagePanel(message);
+			mpan = new MessagePanel(message); // sends the message to the message panel
 			c.add(mpan, BorderLayout.NORTH);
 			JPanel panSouth = new JPanel();
 			panSouth.setLayout(new BorderLayout());
@@ -597,43 +597,43 @@ class DartFrame extends JFrame{
 				}
 			});
 			enterButtons[4].addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					cPlayer.setPrevScore(cPlayer.getCurrentScore());
-					cPlayer.throwDart(number, multiplier);
-					setNumber(0);
-					multiplier = 1;
+				public void actionPerformed(ActionEvent e) { // the enter action Listener
+					cPlayer.setPrevScore(cPlayer.getCurrentScore()); // sets the previous score to the current score, just incase the player goes over
+					cPlayer.throwDart(number, multiplier); // player throws a dart
+					setNumber(0); // reset the number
+					multiplier = 1; // and multiplier for the next turn
 					span.repaint();
-					isWinner = sc.isWinner();
-					count++; // see if this count works
-					if(isWinner == true) {
+					isWinner = sc.isWinner(); // checks if the current player won
+					count++; // counts the three turns per player
+					if(isWinner == true) { // if they won
 						message = String.format("Hold the phone, we have a winner!!! Good job %s", cPlayer.getName());
 						mpan.setMessage(message);
 						mpan.repaint();
-						for(int i = 0; i < 20; i++) {
+						for(int i = 0; i < 20; i++) { // disable the buttons
 							pointButtons[i].setEnabled(false);
 						}
 						for(int i = 0; i < 4; i++) {
 							enterButtons[i].setEnabled(false);
 						}
-						sAgain = String.format("%s won that one... Rematch?", cPlayer.getName());
-						again = JOptionPane.showConfirmDialog(null, sAgain, null, 1);
+						sAgain = String.format("%s won that one... Rematch?", cPlayer.getName()); 
+						again = JOptionPane.showConfirmDialog(null, sAgain, null, 1); // give the option to start a new game
 						
-						if(again == 0) { // CHANGE THIS FOR THE FINAL GAME
+						if(again == 0) { // if they choose to play again, restart the game
 							playAgain = true;
 							DartFrame dfrm = new DartFrame(pointButtons, enterButtons, attempts);
 							dfrm.setVisible(true);
-						} else {
+						} else { // if they choose not to, the game stops
 							playAgain = false;
 						}
 						
 					}
-					if(cPlayer.getCurrentScore() > game) {
+					if(cPlayer.getCurrentScore() > game) { // if the current player goes over then the current score is set to their previous score
 						message = String.format("You thought you were good %s, but you went over", cPlayer.getName());
 						mpan.setMessage(message);
 						mpan.repaint();
 						cPlayer.setCurrentScore(cPlayer.getPrevScore());
 					}
-					if(count > 2) {
+					if(count > 2) { // once they enter three numbers, the count restarts and the player changes
 						count = 0;
 						if(twoPlayer == true) {
 							cPlayer = match.changePlayer(cPlayer);
